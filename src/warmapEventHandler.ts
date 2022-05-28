@@ -92,7 +92,7 @@ export class WarState extends EventEmitter {
                         });
                     }),
                 // Load factions from api
-                fetch(apiURL+"/api/factions.json")
+                fetch(apiURL + "/api/factions.json")
                     .then(value => value.json())
                     .then(factions =>
                         factions.forEach((element: any) => {
@@ -248,7 +248,7 @@ export class WarState extends EventEmitter {
                             this.lookupFactionsByTemplateId.clear();
                             this.battlefieldstatusMap.clear();
                             this.supplylinestatusMap.clear();
-                            await fetch(apiURL+"/api/factions.json")
+                            await fetch(apiURL + "/api/factions.json")
                                 .then(value => value.json())
                                 .then(factions =>
                                     factions.forEach((element: any) => {

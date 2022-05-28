@@ -11,17 +11,28 @@ const baseWidth = totalWidth / numberOfChunks;
 const baseHeight = totalHeight / numberOfChunks;
 
 const posToSector = (x: number, y: number) =>
-    (Math.floor(y / baseHeight) * numberOfChunks) + Math.floor(x / baseWidth);
+    Math.floor(y / baseHeight) * numberOfChunks + Math.floor(x / baseWidth);
 
-
-
-function lineLine(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number) {
+function lineLine(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    x3: number,
+    y3: number,
+    x4: number,
+    y4: number,
+) {
     // calculate the distance to intersection point
-    const uA = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
-    const uB = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+    const uA =
+        ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) /
+        ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+    const uB =
+        ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) /
+        ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
 
     // if uA and uB are between 0-1, lines are colliding
-    return (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1);
+    return uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1;
 }
 
 /**
@@ -35,9 +46,20 @@ function lineLine(x1: number, y1: number, x2: number, y2: number, x3: number, y3
  * @param rw rect x size
  * @param rh rect y size
  */
-const lineRect = (x1: number, y1: number, x2: number, y2: number, rx: number, ry: number, rw: number, rh: number) =>
-    lineLine(x1, y1, x2, y2, rx, ry, rx, ry + rh) || lineLine(x1, y1, x2, y2, rx + rw, ry, rx + rw, ry + rh) ||
-    lineLine(x1, y1, x2, y2, rx, ry, rx + rw, ry) || lineLine(x1, y1, x2, y2, rx, ry + rh, rx + rw, ry + rh);
+const lineRect = (
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    rx: number,
+    ry: number,
+    rw: number,
+    rh: number,
+) =>
+    lineLine(x1, y1, x2, y2, rx, ry, rx, ry + rh) ||
+    lineLine(x1, y1, x2, y2, rx + rw, ry, rx + rw, ry + rh) ||
+    lineLine(x1, y1, x2, y2, rx, ry, rx + rw, ry) ||
+    lineLine(x1, y1, x2, y2, rx, ry + rh, rx + rw, ry + rh);
 
 function addToSector(sectors: any[][], index: number, element: any) {
     if (index > totalChunks) return;
@@ -53,10 +75,12 @@ battlefield.forEach((element: any) => {
     addToSector(bfsSectors, index, element);
     const edgeY = element.posy % baseHeight;
     if (edgeY < 20) addToSector(bfsSectors, index - numberOfChunks, element);
-    else if (edgeY > (baseHeight - 20)) addToSector(bfsSectors, index + numberOfChunks, element);
+    else if (edgeY > baseHeight - 20)
+        addToSector(bfsSectors, index + numberOfChunks, element);
     const edgeX = element.posx % baseWidth;
     if (edgeX < 20) addToSector(bfsSectors, index - 1, element);
-    else if (edgeX > (baseWidth - 20)) addToSector(bfsSectors, index + 1, element);
+    else if (edgeX > baseWidth - 20)
+        addToSector(bfsSectors, index + 1, element);
 });
 
 supplyline.forEach((element: any) => {
@@ -66,11 +90,20 @@ supplyline.forEach((element: any) => {
     if (index !== index2) {
         for (let x = 0; x < numberOfChunks; x++) {
             for (let y = 0; y < numberOfChunks; y++) {
-                const index = (y * numberOfChunks) + x;
-                if (lineRect(
-                    element.posx1, element.posy1, element.posx2, element.posy2,
-                    baseWidth * x, baseHeight * y, baseWidth, baseHeight
-                )) addToSector(supsSectors, index, element);
+                const index = y * numberOfChunks + x;
+                if (
+                    lineRect(
+                        element.posx1,
+                        element.posy1,
+                        element.posx2,
+                        element.posy2,
+                        baseWidth * x,
+                        baseHeight * y,
+                        baseWidth,
+                        baseHeight,
+                    )
+                )
+                    addToSector(supsSectors, index, element);
             }
         }
     }
@@ -79,7 +112,7 @@ supplyline.forEach((element: any) => {
 const sectors = [];
 for (let x = 0; x < numberOfChunks; x++) {
     for (let y = 0; y < numberOfChunks; y++) {
-        const index = (y * numberOfChunks) + x;
+        const index = y * numberOfChunks + x;
         if (bfsSectors[index] || supsSectors[index]) {
             sectors.push({
                 index,

@@ -62,7 +62,10 @@ const Warmap = ({ warState }: { warState: WarState }): JSX.Element => {
                         offsetY={baseHeight * y}
                         listening={false}
                     >
-                        <Layer key={`sectorlayer${sectorData.index}`} listening={false}>
+                        <Layer
+                            key={`sectorlayer${sectorData.index}`}
+                            listening={false}
+                        >
                             {sectorData.supsSector.map(e => (
                                 <Supplyline
                                     key={`supplyline${e}sector${sectorData.index}`}
