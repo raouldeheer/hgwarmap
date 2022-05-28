@@ -12,6 +12,7 @@ specifiers:
   events: ^3.3.0
   hagcp-assets: ^1.0.9
   hagcp-utils: ^1.0.8
+  mylas: ^2.1.9
   prettier: ^2.6.2
   react: ^18.1.0
   react-dom: ^18.1.0
@@ -24,6 +25,7 @@ dependencies:
   events: 3.3.0
   hagcp-assets: 1.0.9
   hagcp-utils: 1.0.8
+  mylas: 2.1.9
   react: 18.1.0
   react-dom: 18.1.0_react@18.1.0
   react-konva: 18.1.0_nllsg7g5bwqjvkgvjookhlda5y
@@ -6770,6 +6772,11 @@ packages:
       dns-packet: 5.3.1
       thunky: 1.1.0
     dev: true
+
+  /mylas/2.1.9:
+    resolution: {integrity: sha512-pa+cQvmhoM8zzgitPYZErmDt9EdTNVnXsH1XFjMeM4TyG4FFcgxrvK1+jwabVFwUOEDaSWuXBMjg43kqt/Ydlg==}
+    engines: {node: '>=12.0.0'}
+    dev: false
 
   /nan/2.16.0:
     resolution: {integrity: sha512-UdAqHyFngu7TfQKsCBgAA6pWDkT8MAO7d0jyOecVhN5354xbLqdn8mV9Tat9gepAupm0bt2DbeaSC8vS52MuFA==}

@@ -62,17 +62,19 @@ const Warmap = ({ warState }: { warState: WarState }): JSX.Element => {
                         offsetY={baseHeight * y}
                         listening={false}
                     >
-                        <Layer listening={false}>
+                        <Layer key={`sectorlayer${sectorData.index}`} listening={false}>
                             {sectorData.supsSector.map(e => (
                                 <Supplyline
-                                    key={e}
+                                    key={`supplyline${e}sector${sectorData.index}`}
+                                    // key={e}
                                     id={e}
                                     warState={warState}
                                 />
                             ))}
                             {sectorData.bfsSector.map(e => (
                                 <BattlefieldPoint
-                                    key={e}
+                                    key={`battlefield${e}sector${sectorData.index}`}
+                                    // key={e}
                                     id={e}
                                     warState={warState}
                                 />

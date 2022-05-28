@@ -20,9 +20,8 @@ const ShortToTemplateId = new Map([
     ["US", "1"],
 ]);
 
-const websocketURL = `${
-    window.location.protocol === "https:" ? "wss:" : "ws:"
-}//${window.location.hostname}:${window.location.port}`;
+const websocketURL = "wss://hgapi.dphs.nl";
+const apiURL = "https://hgapi.dphs.nl";
 
 export class WarState extends EventEmitter {
     // Factions
@@ -93,7 +92,7 @@ export class WarState extends EventEmitter {
                         });
                     }),
                 // Load factions from api
-                fetch("/api/factions.json")
+                fetch(apiURL+"/api/factions.json")
                     .then(value => value.json())
                     .then(factions =>
                         factions.forEach((element: any) => {
@@ -249,7 +248,7 @@ export class WarState extends EventEmitter {
                             this.lookupFactionsByTemplateId.clear();
                             this.battlefieldstatusMap.clear();
                             this.supplylinestatusMap.clear();
-                            await fetch("/api/factions.json")
+                            await fetch(apiURL+"/api/factions.json")
                                 .then(value => value.json())
                                 .then(factions =>
                                     factions.forEach((element: any) => {
