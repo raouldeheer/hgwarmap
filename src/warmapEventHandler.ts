@@ -1,5 +1,9 @@
 import EventEmitter from "events";
-import { battle, battlefieldstatus, supplylinestatus } from "./map/mapInterfaces";
+import {
+    battle,
+    battlefieldstatus,
+    supplylinestatus,
+} from "./map/mapInterfaces";
 import capital from "hagcp-assets/json/capital.json";
 import sectorsraw from "./json/sectors.json";
 import { IKeyValueChangeSetResult } from "hagcp-utils";
@@ -16,7 +20,9 @@ const ShortToTemplateId = new Map([
     ["US", "1"],
 ]);
 
-const websocketURL = `${(window.location.protocol === "https:" ? "wss:" : "ws:")}//${window.location.hostname}:${window.location.port}`;
+const websocketURL = `${
+    window.location.protocol === "https:" ? "wss:" : "ws:"
+}//${window.location.hostname}:${window.location.port}`;
 
 export class WarState extends EventEmitter {
     // Factions
@@ -71,22 +77,33 @@ export class WarState extends EventEmitter {
         const onloadEvent = async () => {
             await Promise.all([
                 // Load battlefields from assets
-                fetch("/assets/battlefield.json").then(value => value.json()).then(battlefield => {
-                    battlefield.forEach((element: { id: string; }) => {
-                        this.battlefields.set(element.id, element);
-                    });
-                }),
+                fetch("/assets/battlefield.json")
+                    .then(value => value.json())
+                    .then(battlefield => {
+                        battlefield.forEach((element: { id: string }) => {
+                            this.battlefields.set(element.id, element);
+                        });
+                    }),
                 // Load supplylines from assets
-                fetch("/assets/supplyline.json").then(value => value.json()).then(supplyline => {
-                    supplyline.forEach((element: { id: string; }) => {
-                        this.supplylines.set(element.id, element);
-                    });
-                }),
+                fetch("/assets/supplyline.json")
+                    .then(value => value.json())
+                    .then(supplyline => {
+                        supplyline.forEach((element: { id: string }) => {
+                            this.supplylines.set(element.id, element);
+                        });
+                    }),
                 // Load factions from api
-                fetch("/api/factions.json").then(value => value.json()).then(factions => factions.forEach((element: any) => {
-                    this.lookupFactions.set(element.factionId, element);
-                    this.lookupFactionsByTemplateId.set(element.factionTemplateId, element);
-                })),
+                fetch("/api/factions.json")
+                    .then(value => value.json())
+                    .then(factions =>
+                        factions.forEach((element: any) => {
+                            this.lookupFactions.set(element.factionId, element);
+                            this.lookupFactionsByTemplateId.set(
+                                element.factionTemplateId,
+                                element,
+                            );
+                        }),
+                    ),
             ]);
 
             // Emit page loaded
@@ -133,7 +150,9 @@ export class WarState extends EventEmitter {
 
     private connectToBattles(value: string) {
         // Open socket
-        const socket = new WebSocket(`${websocketURL}/api/socket/factionbattles`);
+        const socket = new WebSocket(
+            `${websocketURL}/api/socket/factionbattles`,
+        );
 
         // Send faction name
         socket.onopen = () => {
@@ -143,9 +162,9 @@ export class WarState extends EventEmitter {
         // Handle incoming data
         socket.onmessage = e => {
             const data: {
-                deletedBattles: string[],
-                changedBattles: battle[],
-                activeBattles: string[],
+                deletedBattles: string[];
+                changedBattles: battle[];
+                activeBattles: string[];
             } = JSON.parse(e.data);
 
             this.activeBattles.clear();
@@ -161,7 +180,10 @@ export class WarState extends EventEmitter {
             // Set new battle information
             data.changedBattles.forEach(element => {
                 this.battlesMap.set(element.id, element);
-                this.emit(`battlesetmapEntityId${element.mapEntityId}`, element.id);
+                this.emit(
+                    `battlesetmapEntityId${element.mapEntityId}`,
+                    element.id,
+                );
             });
         };
 
@@ -215,8 +237,10 @@ export class WarState extends EventEmitter {
             const supstatus: supplylinestatus[] = [];
             const bfstatus: battlefieldstatus[] = [];
             for (const element of data.set) {
-                if (element.key === "supplylinestatus") supstatus.push(element.value);
-                if (element.key === "battlefieldstatus") bfstatus.push(element.value);
+                if (element.key === "supplylinestatus")
+                    supstatus.push(element.value);
+                if (element.key === "battlefieldstatus")
+                    bfstatus.push(element.value);
                 if (element.key === "war") {
                     // Check if new war has started
                     if (element.value.id !== this.warid) {
@@ -225,10 +249,20 @@ export class WarState extends EventEmitter {
                             this.lookupFactionsByTemplateId.clear();
                             this.battlefieldstatusMap.clear();
                             this.supplylinestatusMap.clear();
-                            await fetch("/api/factions.json").then(value => value.json()).then(factions => factions.forEach((element: any) => {
-                                this.lookupFactions.set(element.factionId, element);
-                                this.lookupFactionsByTemplateId.set(element.factionTemplateId, element);
-                            }));
+                            await fetch("/api/factions.json")
+                                .then(value => value.json())
+                                .then(factions =>
+                                    factions.forEach((element: any) => {
+                                        this.lookupFactions.set(
+                                            element.factionId,
+                                            element,
+                                        );
+                                        this.lookupFactionsByTemplateId.set(
+                                            element.factionTemplateId,
+                                            element,
+                                        );
+                                    }),
+                                );
                         }
                         this.warid = element.value.id;
                         if (this.warid) this.newWarCB?.(this.warid);
@@ -237,28 +271,49 @@ export class WarState extends EventEmitter {
             }
 
             // Update sectors
-            sectors.map(sector => ({
-                supplylinestatus: supstatus.filter(value => sector.supplylines.has(value.supplylineid)),
-                battlefieldstatus: bfstatus.filter(value => sector.battlefields.has(value.battlefieldid)),
-            })).forEach(chunk => {
-                setTimeout(() => {
-                    // Apply supplylinestatuses
-                    chunk.supplylinestatus.forEach(element => {
-                        if (!this.supplylinestatusMap.has(element.id)) {
-                            this.supplylinestatusMap.set(element.id, element);
-                            this.emit(`supplyline${element.supplylineid}`, element.id);
-                        }
-                    });
-                    // Apply battlefieldstatuses
-                    chunk.battlefieldstatus.forEach(element => {
-                        if (!this.battlefieldstatusMap.has(element.id) ||
-                            this.battlefieldstatusMap.get(element.id)!.factionid !== element.factionid) {
-                            this.battlefieldstatusMap.set(element.id, element);
-                            this.emit(`battlefield${element.battlefieldid}`, element.id);
-                        }
-                    });
-                }, 1);
-            });
+            sectors
+                .map(sector => ({
+                    supplylinestatus: supstatus.filter(value =>
+                        sector.supplylines.has(value.supplylineid),
+                    ),
+                    battlefieldstatus: bfstatus.filter(value =>
+                        sector.battlefields.has(value.battlefieldid),
+                    ),
+                }))
+                .forEach(chunk => {
+                    setTimeout(() => {
+                        // Apply supplylinestatuses
+                        chunk.supplylinestatus.forEach(element => {
+                            if (!this.supplylinestatusMap.has(element.id)) {
+                                this.supplylinestatusMap.set(
+                                    element.id,
+                                    element,
+                                );
+                                this.emit(
+                                    `supplyline${element.supplylineid}`,
+                                    element.id,
+                                );
+                            }
+                        });
+                        // Apply battlefieldstatuses
+                        chunk.battlefieldstatus.forEach(element => {
+                            if (
+                                !this.battlefieldstatusMap.has(element.id) ||
+                                this.battlefieldstatusMap.get(element.id)!
+                                    .factionid !== element.factionid
+                            ) {
+                                this.battlefieldstatusMap.set(
+                                    element.id,
+                                    element,
+                                );
+                                this.emit(
+                                    `battlefield${element.battlefieldid}`,
+                                    element.id,
+                                );
+                            }
+                        });
+                    }, 1);
+                });
         }
     }
 }

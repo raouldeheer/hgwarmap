@@ -252,13 +252,13 @@ export const enum ResponseType {
     discord_call_failed = 277,
     epic_invalid_id = 278,
     epic_call_failed = 279,
-    voucher_expired = 280
+    voucher_expired = 280,
 }
 
 export const enum MissionStatus {
     MissionOpen = 1,
     MissionRunning = 2,
-    MissionEnding = 3
+    MissionEnding = 3,
 }
 
 export interface Battlefield {

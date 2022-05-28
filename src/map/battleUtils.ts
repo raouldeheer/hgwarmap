@@ -40,7 +40,7 @@ export function battleIdToColor(
     warmapEventHandler: WarState,
     battleId: string | undefined,
     battleType: BattleType,
-    battleColor: string = BattleColor.Default
+    battleColor: string = BattleColor.Default,
 ) {
     const battle = warmapEventHandler.GetBattle(battleId);
     if (battle && battle.MissionDetails.response === 0) {
@@ -49,18 +49,33 @@ export function battleIdToColor(
             case MissionStatus.MissionOpen:
                 battleColor = BattleColor.OpenNormal;
                 const currFaction = warmapEventHandler.currentFactionId;
-                const totalResources = battle?.MissionDetails?.armyResources?.reduce?.<Map<number, number>>((prev, curr) => {
-                    if (currFaction !== curr.factionId) return prev;
-                    const CategoryId = Number(curr.armyResourceCategoryId);
-                    const value = prev.get(CategoryId);
-                    prev.set(CategoryId, value ? value + curr.count : curr.count);
-                    return prev;
-                }, new Map());
+                const totalResources =
+                    battle?.MissionDetails?.armyResources?.reduce?.<
+                        Map<number, number>
+                    >((prev, curr) => {
+                        if (currFaction !== curr.factionId) return prev;
+                        const CategoryId = Number(curr.armyResourceCategoryId);
+                        const value = prev.get(CategoryId);
+                        prev.set(
+                            CategoryId,
+                            value ? value + curr.count : curr.count,
+                        );
+                        return prev;
+                    }, new Map());
                 if (!totalResources) return battleColor;
-                if (!battleIsFun(totalResources, battleType)) battleColor = BattleColor.NotFun;
-                if (battle.MissionDetails.factions.reduce((prev, curr) =>
-                    prev + (currFaction !== curr.factionId ? curr?.players?.length : 0 || 0), 0
-                ) >= 4) battleColor = BattleColor.Queued;
+                if (!battleIsFun(totalResources, battleType))
+                    battleColor = BattleColor.NotFun;
+                if (
+                    battle.MissionDetails.factions.reduce(
+                        (prev, curr) =>
+                            prev +
+                            (currFaction !== curr.factionId
+                                ? curr?.players?.length
+                                : 0 || 0),
+                        0,
+                    ) >= 4
+                )
+                    battleColor = BattleColor.Queued;
                 break;
             case MissionStatus.MissionRunning:
                 battleColor = BattleColor.Running;
@@ -73,7 +88,10 @@ export function battleIdToColor(
     return battleColor;
 }
 
-function battleIsFun(totalResources: Map<number, number>, battleType: BattleType) {
+function battleIsFun(
+    totalResources: Map<number, number>,
+    battleType: BattleType,
+) {
     const ticketsRequired = battleType === BattleType.Assault ? 18 : 12;
 
     const getValue = (type: ResourceTypes, divider: number) =>
@@ -86,31 +104,43 @@ function battleIsFun(totalResources: Map<number, number>, battleType: BattleType
     const ticketsParas = getValue(ResourceTypes.paratrooper, 12);
     const ticketsParasAirborne = Math.min(
         getValue(ResourceTypes.paratrooper, 12),
-        getValue(ResourceTypes.transport_plane, 4));
+        getValue(ResourceTypes.transport_plane, 4),
+    );
 
-    const InfParaTickets = ticketsInfantry + ticketsParas + ticketsParasAirborne;
+    const InfParaTickets =
+        ticketsInfantry + ticketsParas + ticketsParasAirborne;
 
-    const ticketsTotal = battleType === BattleType.Skirmish
-        ? ticketsInfantry
-        : (InfParaTickets
-            + getValue(ResourceTypes.recon, 10)
-            + Math.min(
-                getValue(ResourceTypes.tank_crew, 10),
-                getValues([
-                    ResourceTypes.medium_armor,
-                    ResourceTypes.heavy_armor,
-                    ResourceTypes.tank_destroyer,
-                    ResourceTypes.heavy_tank_destroyer,
-                    ResourceTypes.light_armor
-                ], 10) // ticketsTanks
-            ) + Math.min(
-                getValue(ResourceTypes.fighter_pilot, 10),
-                getValues([
-                    ResourceTypes.fighter_plane,
-                    ResourceTypes.heavy_fighter_plane,
-                    ResourceTypes.recon_plane
-                ], 10) // ticketsPlanes
-            ));
+    const ticketsTotal =
+        battleType === BattleType.Skirmish
+            ? ticketsInfantry
+            : InfParaTickets +
+              getValue(ResourceTypes.recon, 10) +
+              Math.min(
+                  getValue(ResourceTypes.tank_crew, 10),
+                  getValues(
+                      [
+                          ResourceTypes.medium_armor,
+                          ResourceTypes.heavy_armor,
+                          ResourceTypes.tank_destroyer,
+                          ResourceTypes.heavy_tank_destroyer,
+                          ResourceTypes.light_armor,
+                      ],
+                      10,
+                  ), // ticketsTanks
+              ) +
+              Math.min(
+                  getValue(ResourceTypes.fighter_pilot, 10),
+                  getValues(
+                      [
+                          ResourceTypes.fighter_plane,
+                          ResourceTypes.heavy_fighter_plane,
+                          ResourceTypes.recon_plane,
+                      ],
+                      10,
+                  ), // ticketsPlanes
+              );
 
-    return InfParaTickets >= (ticketsRequired / 2) && ticketsTotal >= ticketsRequired;
+    return (
+        InfParaTickets >= ticketsRequired / 2 && ticketsTotal >= ticketsRequired
+    );
 }
