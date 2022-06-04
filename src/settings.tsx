@@ -16,7 +16,7 @@ const componentStyling: React.CSSProperties = {
 
 const Settings = ({ warState }: { warState: WarState }): JSX.Element => {
     const [disabled, setDisabled] = useState(false);
-    const [status, setStatus] = useState<string | null>(null);
+    const [status, setStatus] = useState<boolean>(false);
 
     const onChange = (e: { target: { value: string } }) => {
         const value = e.target.value;
@@ -27,10 +27,10 @@ const Settings = ({ warState }: { warState: WarState }): JSX.Element => {
     };
 
     useEffect(() => {
-        warState.OnlineCallback = (statusMsg: string) => {
-            setStatus(statusMsg);
+        warState.OnlineCallback = () => {
+            setStatus(!status);
         };
-    }, [warState]);
+    }, [warState, status]);
 
     return (
         <div style={componentStyling}>
@@ -50,7 +50,9 @@ const Settings = ({ warState }: { warState: WarState }): JSX.Element => {
                 <li style={{ margin: 0, color: "Orange" }}>Battle running</li>
                 <li style={{ margin: 0, color: "DarkRed" }}>Battle ending</li>
             </ul>
-            {status ? <h3>{status}</h3> : null}
+            <h2>Last updated:</h2>
+            <p>Map: {warState.mapTime.toLocaleTimeString()}</p>
+            <p>Battles: {warState.battlesTime.toLocaleTimeString()}</p>
         </div>
     );
 };

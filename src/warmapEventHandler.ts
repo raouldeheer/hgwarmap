@@ -47,7 +47,9 @@ export class WarState extends EventEmitter {
     public activeBattles: Set<string>;
 
     // Online
-    private onlineCB?: (status: string) => void;
+    private onlineCB?: () => void;
+    public mapTime: Date;
+    public battlesTime: Date;
 
     constructor() {
         super();
@@ -72,6 +74,10 @@ export class WarState extends EventEmitter {
 
         // War
         this.activeBattles = new Set();
+
+        // Online
+        this.mapTime = new Date();
+        this.battlesTime = new Date();
 
         const onloadEvent = async () => {
             await Promise.all([
@@ -134,6 +140,8 @@ export class WarState extends EventEmitter {
 
         // Handle incoming data
         socket.onmessage = e => {
+            this.mapTime = new Date();
+            this.onlineCB?.();
             const data: IKeyValueChangeSetResult = JSON.parse(e.data);
             this.updateSectors(data);
         };
@@ -160,6 +168,8 @@ export class WarState extends EventEmitter {
 
         // Handle incoming data
         socket.onmessage = e => {
+            this.battlesTime = new Date();
+            this.onlineCB?.();
             const data: {
                 deletedBattles: string[];
                 changedBattles: battle[];
@@ -204,7 +214,7 @@ export class WarState extends EventEmitter {
         this.newWarCB = func;
     }
 
-    public set OnlineCallback(func: (status: string) => void) {
+    public set OnlineCallback(func: () => void) {
         this.onlineCB = func;
     }
 
