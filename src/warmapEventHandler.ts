@@ -222,7 +222,9 @@ export class WarState extends EventEmitter {
         if (!this._currentFaction) return null;
         const id = ShortToTemplateId.get(this._currentFaction);
         if (!id) return null;
-        return this.lookupFactionsByTemplateId.get(id).factionId;
+        const factionId = this.lookupFactionsByTemplateId.get(id)?.factionId;
+        if (!factionId) return null;
+        return factionId;
     }
 
     /**
