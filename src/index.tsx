@@ -1,10 +1,14 @@
+import React from "react";
 import ReactDOM from "react-dom/client";
-import { WarState } from "./warmapEventHandler";
-import Warmap from "./map/warmap";
 
-const warState = new WarState();
+const App = React.lazy(() => import('./App'));
+
 const rootElement = document.getElementById("root");
 if (rootElement) {
     const root = ReactDOM.createRoot(rootElement);
-    root.render(<Warmap warState={warState} />);
+    root.render(
+        <React.Suspense>
+            <App />
+        </React.Suspense>
+    );
 } else console.error("root element not found!");
