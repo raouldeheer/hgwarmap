@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useWarState } from "./warStateContext";
+import { WarState } from "./warmapEventHandler";
 
 const posStyling: React.CSSProperties = {
     position: "absolute",
@@ -14,8 +14,7 @@ const componentStyling: React.CSSProperties = {
     backgroundColor: "#777",
 };
 
-const Settings = (): JSX.Element => {
-    const warState = useWarState();
+const Settings = ({ warState }: { warState: WarState }): JSX.Element => {
     const [disabled, setDisabled] = useState(false);
     const [status, setStatus] = useState<boolean>(false);
 
